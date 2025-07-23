@@ -81,36 +81,87 @@ export class Database {
 		}
 	}
 
-	async updateOne(
+	async updateOne<T = any>(
 		collection: string,
 		id: string,
 		updateOperation: Record<string, any>,
-	) {
-		const body = { collection, updateOperation };
-		const response = await axios.patch(`${this.baseUrl}/${id}`, body);
-		return response.data;
+	): Promise<DatabaseResult<T>> {
+		try {
+			const response = await axios.patch(`${this.baseUrl}/${id}`, {
+				collection,
+				updateOperation,
+			});
+			return { success: true, data: response.data };
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				const message =
+					error.response?.data?.message || "Failed to update record";
+				return { success: false, error: message };
+			}
+			throw error;
+		}
 	}
 
-	async updateSome(
+	async updateSome<T = any>(
 		collection: string,
 		filter: Record<string, any>,
 		updateOperation: Record<string, any>,
-	) {
-		const body = { collection, filter, updateOperation };
-		const response = await axios.patch(`${this.baseUrl}/some`, body);
-		return response.data;
+	): Promise<DatabaseResult<T>> {
+		try {
+			const response = await axios.patch(`${this.baseUrl}/some`, {
+				collection,
+				filter,
+				updateOperation,
+			});
+			return { success: true, data: response.data };
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				const message =
+					error.response?.data?.message || "Failed to update records";
+				return { success: false, error: message };
+			}
+			throw error;
+		}
 	}
 
-	async updateAll(collection: string, updateOperation: Record<string, any>) {
-		const body = { collection, updateOperation };
-		const response = await axios.patch(this.baseUrl, body);
-		return response.data;
+	async updateAll<T = any>(
+		collection: string,
+		updateOperation: Record<string, any>,
+	): Promise<DatabaseResult<T>> {
+		try {
+			const response = await axios.patch(this.baseUrl, {
+				collection,
+				updateOperation,
+			});
+			return { success: true, data: response.data };
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				const message = error.response?.data?.message || "Failed to records";
+				return { success: false, error: message };
+			}
+			throw error;
+		}
 	}
 
-	async replace(collection: string, id: string, newItem: object) {
-		const body = { collection, newItem };
-		const response = await axios.put(`${this.baseUrl}/${id}`, body);
-		return response.data;
+	async replace<T = any>(
+		collection: string,
+		id: string,
+		newItem: object,
+	): Promise<DatabaseResult<T>> {
+		try {
+			const response = await axios.put(`${this.baseUrl}/${id}`, {
+				collection,
+				newItem,
+			});
+			return { success: true, data: response.data };
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				const message =
+					error.response?.data?.message || "Failed to replace record";
+				return { success: false, error: message };
+			}
+			throw error;
+		}
 	}
 
 	async removeOne(collection: string, id: string) {
