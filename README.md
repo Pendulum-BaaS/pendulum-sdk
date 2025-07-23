@@ -174,6 +174,33 @@ const logoutResult = await client.auth.logout();
 
 Subscribe to live data changes using Server-Sent Events from the Pendulum Event Server:
 
+```typescript
+// Subscribe to collection changes
+const handleUserUpdate = (event: DatabaseEvent) => {
+  console.log('User data changed:', event);
+};
+
+client.realtime.subscribe("users", handleUserUpdate);
+
+// Unsubscribe from updates
+client.realtime.unsubscribe("users", handleUserUpdate);
+
+// Disconnect from all real-time updates
+client.realtime.disconnect();
+```
+
+**⚠️ Important: Subscription Management**
+The subscription system uses referential equality to track callback functions. **Always use named functions to avoid duplicate subscriptions**:
+```typescript
+// ❌ Don't do this - creates duplicate subscriptions
+client.realtime.subscribe("users", (event) => console.log(event));
+client.realtime.subscribe("users", (event) => console.log(event));
+
+// ✅ Do this instead - uses function reference
+const handleUserUpdate = (event) => console.log(event);
+client.realtime.subscribe("users", handleUserUpdate);
+client.realtime.subscribe("users", handleUserUpdate); // Second subscription is de-duplicated
+``
 
 #### DatabaseEvent Structure
 
