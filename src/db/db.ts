@@ -164,24 +164,57 @@ export class Database {
 		}
 	}
 
-	async removeOne(collection: string, id: string) {
-		const response = await axios.delete(`${this.baseUrl}/${id}`, {
-			params: { collection },
-		});
-		return response.data;
+	async removeOne<T = any>(
+		collection: string,
+		id: string,
+	): Promise<DatabaseResult<T>> {
+		try {
+			const response = await axios.delete(`${this.baseUrl}/${id}`, {
+				params: { collection },
+			});
+			return { success: true, data: response.data };
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				const message =
+					error.response?.data?.message || "Failed to delete record";
+				return { success: false, error: message };
+			}
+			throw error;
+		}
 	}
 
-	async removeSome(collection: string, filter: Record<string, any>) {
-		const response = await axios.delete(`${this.baseUrl}/some`, {
-			params: { collection, ...filter },
-		});
-		return response.data;
+	async removeSome<T = any>(
+		collection: string,
+		filter: Record<string, any>,
+	): Promise<DatabaseResult<T>> {
+		try {
+			const response = await axios.delete(`${this.baseUrl}/some`, {
+				params: { collection, ...filter },
+			});
+			return { success: true, data: response.data };
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				const message =
+					error.response?.data?.message || "Failed to delete records";
+				return { success: false, error: message };
+			}
+			throw error;
+		}
 	}
 
-	async removeAll(collection: string) {
-		const response = await axios.delete(this.baseUrl, {
-			params: { collection },
-		});
-		return response.data;
+	async removeAll<T = any>(collection: string): Promise<DatabaseResult<T>> {
+		try {
+			const response = await axios.delete(this.baseUrl, {
+				params: { collection },
+			});
+			return { success: true, data: response.data };
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				const message =
+					error.response?.data?.message || "Failed to delete records";
+				return { success: false, error: message };
+			}
+			throw error;
+		}
 	}
 }
