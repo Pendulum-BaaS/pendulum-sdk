@@ -136,7 +136,8 @@ export class Database {
 			return { success: true, data: response.data };
 		} catch (error) {
 			if (axios.isAxiosError(error)) {
-				const message = error.response?.data?.message || "Failed to records";
+				const message =
+					error.response?.data?.message || "Failed to update records";
 				return { success: false, error: message };
 			}
 			throw error;
