@@ -64,10 +64,21 @@ export class Database {
 		}
 	}
 
-	async insert(collection: string, newItems: object[]) {
-		const body = { collection, newItems };
-		const response = await axios.post(this.baseUrl, body);
-		return response.data;
+	async insert<T = any>(
+		collection: string,
+		newItems: object[],
+	): Promise<DatabaseResult<T>> {
+		try {
+			const response = await axios.post(this.baseUrl, { collection, newItems });
+			return { success: true, data: response.data };
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				const message =
+					error.response?.data?.message || "Failed to insert data";
+				return { success: false, error: message };
+			}
+			throw error;
+		}
 	}
 
 	async updateOne(
