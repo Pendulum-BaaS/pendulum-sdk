@@ -3,8 +3,8 @@ import axios from "axios";
 export class Auth {
 	private readonly baseUrl: string;
 
-	constructor() {
-		this.baseUrl = "http://localhost:3000/auth";
+	constructor(apiUrl: string) {
+		this.baseUrl = `${apiUrl}/auth`;
 	}
 
 	async register(username: string, email: string, password: string) {

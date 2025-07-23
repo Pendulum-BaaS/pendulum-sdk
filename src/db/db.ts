@@ -3,8 +3,8 @@ import axios from "axios";
 export class Database {
 	private baseUrl: string;
 
-	constructor() {
-		this.baseUrl = "http://localhost:3000/api";
+	constructor(apiUrl: string) {
+		this.baseUrl = `${apiUrl}/api`;
 	}
 
 	async getOne(collection: string, id: string) {

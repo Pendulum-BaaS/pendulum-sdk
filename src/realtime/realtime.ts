@@ -1,20 +1,22 @@
 import { RealtimeFunction } from "../types";
 
 export class Realtime {
+	private eventsUrl: string;
 	private subscriptions: Map<string, Set<RealtimeFunction>>;
 	private eventSource: EventSource | null = null;
 	private reconnectAttempts: number = 0;
 	private maxReconnectAttempts: number = 5;
 	private reconnectDelay: number = 1000;
 
-	constructor() {
+	constructor(eventsUrl: string) {
+		this.eventsUrl = eventsUrl;
 		this.subscriptions = new Map();
 		this.initializeEventSource();
 	}
 
 	private initializeEventSource() {
 		if (this.eventSource) this.eventSource.close();
-		this.eventSource = new EventSource("http://localhost:8080/events");
+		this.eventSource = new EventSource(this.eventsUrl);
 		this.eventSource.onmessage = (event) => {
 			// event listener
 			try {
