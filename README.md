@@ -359,4 +359,4 @@ async function handleLogin(username: string, password: string) {
 
 ## Contributing
 
-This SDK is part of the Pendulum Backend-as-a-Service platform. For issues, feature requests, or contributions, please refer to the main Pendulum project repository.
+This SDK is part of the Pendulum Backend-as-a-Service platform. For issues, feature requests, or contributions, please refer to the main Pendulum project [repository](https://github.com/Pendulum-BaaS/pendulum).
