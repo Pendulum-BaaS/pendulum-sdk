@@ -1,4 +1,4 @@
 export interface PendulumConfig {
-	apiUrl?: string;
-	eventsUrl?: string;
+  apiUrl?: string;
+  eventsUrl?: string;
 }
