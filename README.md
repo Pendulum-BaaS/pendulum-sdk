@@ -190,6 +190,7 @@ client.realtime.disconnect();
 ```
 
 **⚠️ Important: Subscription Management**
+
 The subscription system uses referential equality to track callback functions. **Always use named functions to avoid duplicate subscriptions**:
 ```typescript
 // ❌ Don't do this - creates duplicate subscriptions
@@ -200,7 +201,7 @@ client.realtime.subscribe("users", (event) => console.log(event));
 const handleUserUpdate = (event) => console.log(event);
 client.realtime.subscribe("users", handleUserUpdate);
 client.realtime.subscribe("users", handleUserUpdate); // Second subscription is de-duplicated
-``
+```
 
 #### DatabaseEvent Structure
 
