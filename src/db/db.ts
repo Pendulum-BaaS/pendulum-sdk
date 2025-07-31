@@ -32,11 +32,16 @@ export class Database {
     limit: number = 10,
     offset: number = 0,
     sortKey: string,
+    ids?: string[],
   ): Promise<DatabaseResult<T>> {
     try {
-      const response = await axios.get(`${this.baseUrl}/some`, {
-        params: { collection, limit, offset, sortKey },
-      });
+      const params: any = { collection, limit, offset, sortKey };
+
+      if (Array.isArray(ids) && ids.length > 0) {
+        params.ids = ids.map((id) => id.trim()).join(",");
+      }
+
+      const response = await axios.get(`${this.baseUrl}/some`, { params });
       return { success: true, data: response.data };
     } catch (error) {
       if (axios.isAxiosError(error)) {
