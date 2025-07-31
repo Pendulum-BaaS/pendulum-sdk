@@ -191,11 +191,16 @@ export class Database {
 
   async removeSome<T = any>(
     collection: string,
-    filter: Record<string, any>,
+    ids: string[],
   ): Promise<DatabaseResult<T>> {
     try {
+      if (ids.length === 0) {
+        throw new Error("one or more ids required for removeSome");
+      }
+
+      const idsParam = ids.map((id) => id.trim()).join(",");
       const response = await axios.delete(`${this.baseUrl}/some`, {
-        params: { collection, ...filter },
+        params: { collection, ids: idsParam },
       });
       return { success: true, data: response.data };
     } catch (error) {
