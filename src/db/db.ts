@@ -4,8 +4,8 @@ import { DatabaseResult } from "src/types";
 export class Database {
   private baseUrl: string;
 
-  constructor(apiUrl: string) {
-    this.baseUrl = `${apiUrl}/api`;
+  constructor(appUrl: string) {
+    this.baseUrl = `${appUrl}/api`;
   }
 
   async getOne<T = any>(

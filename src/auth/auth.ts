@@ -4,8 +4,8 @@ import { AuthResult, LoginResult } from "src/types";
 export class Auth {
   private readonly baseUrl: string;
 
-  constructor(apiUrl: string) {
-    this.baseUrl = `${apiUrl}/auth`;
+  constructor(appUrl: string) {
+    this.baseUrl = `${appUrl}/auth`;
   }
 
   async register(
