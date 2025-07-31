@@ -9,7 +9,7 @@ export class Realtime {
   private reconnectDelay: number = 1000;
 
   constructor(eventsUrl: string) {
-    this.eventsUrl = eventsUrl;
+    this.eventsUrl = `${eventsUrl}/events`;
     this.subscriptions = new Map();
     this.initializeEventSource();
   }
