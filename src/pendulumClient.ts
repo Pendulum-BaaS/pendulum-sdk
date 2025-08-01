@@ -21,8 +21,8 @@ export class PendulumClient {
     this.authToken = this.getStoredAuthToken();
     this.adminKey = this.getStoredAdminKey();
 
-    this.db = new Database(this.appUrl);
-    this.auth = new Auth(this.appUrl);
+    this.db = new Database(this.appUrl, () => this.getAuthHeaders());
+    this.auth = new Auth(this.appUrl, () => this.getAuthHeaders());
     this.realtime = new Realtime(this.eventsUrl);
   }
 

@@ -5,8 +5,9 @@ export class Auth {
   private readonly baseUrl: string;
   private getAuthHeaders: () => Record<string, string>;
 
-  constructor(appUrl: string) {
+  constructor(appUrl: string, getAuthHeaders: () => Record<string, string> = () => ({})) {
     this.baseUrl = `${appUrl}/auth`;
+    this.getAuthHeaders = getAuthHeaders;
   }
 
   async register(
@@ -32,7 +33,7 @@ export class Auth {
   async login(identifier: string, password: string): Promise<LoginResult> {
     try {
       const response = await axios.post(`${this.baseUrl}/login`,
-        { identifier: username, password },
+        { identifier, password },
         { headers: this.getAuthHeaders() },
       );
       return { success: true, userId: response.data.userId };
