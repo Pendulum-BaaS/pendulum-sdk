@@ -3,9 +3,12 @@ import { DatabaseResult } from "src/types";
 
 export class Database {
   private baseUrl: string;
+  private getAuthHeaders: () => Record<string, string>;
 
-  constructor(appUrl: string) {
+
+  constructor(appUrl: string, getAuthHeaders: () => Record<string, string> = () => ({})) {
     this.baseUrl = `${appUrl}/api`;
+    this.getAuthHeaders = getAuthHeaders
   }
 
   async getOne<T = any>(
@@ -74,7 +77,11 @@ export class Database {
     newItems: object[],
   ): Promise<DatabaseResult<T>> {
     try {
-      const response = await axios.post(this.baseUrl, { collection, newItems });
+      const response = await axios.post(
+        this.baseUrl,
+        { collection, newItems },
+        { headers: this.getAuthHeaders() }
+      );
       return { success: true, data: response.data };
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -92,10 +99,10 @@ export class Database {
     updateOperation: Record<string, any>,
   ): Promise<DatabaseResult<T>> {
     try {
-      const response = await axios.patch(`${this.baseUrl}/${id}`, {
-        collection,
-        updateOperation,
-      });
+      const response = await axios.patch(`${this.baseUrl}/${id}`,
+        { collection, updateOperation },
+        { headers: this.getAuthHeaders() }
+      );
       return { success: true, data: response.data };
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -113,11 +120,10 @@ export class Database {
     updateOperation: Record<string, any>,
   ): Promise<DatabaseResult<T>> {
     try {
-      const response = await axios.patch(`${this.baseUrl}/some`, {
-        collection,
-        filter,
-        updateOperation,
-      });
+      const response = await axios.patch(`${this.baseUrl}/some`,
+        { collection, filter, updateOperation,},
+        { headers: this.getAuthHeaders() }
+      );
       return { success: true, data: response.data };
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -134,10 +140,10 @@ export class Database {
     updateOperation: Record<string, any>,
   ): Promise<DatabaseResult<T>> {
     try {
-      const response = await axios.patch(this.baseUrl, {
-        collection,
-        updateOperation,
-      });
+      const response = await axios.patch(this.baseUrl,
+        { collection, updateOperation, },
+        { headers: this.getAuthHeaders() }
+      );
       return { success: true, data: response.data };
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -155,10 +161,10 @@ export class Database {
     newItem: object,
   ): Promise<DatabaseResult<T>> {
     try {
-      const response = await axios.put(`${this.baseUrl}/${id}`, {
-        collection,
-        newItem,
-      });
+      const response = await axios.put(`${this.baseUrl}/${id}`,
+        { collection, newItem },
+        { headers: this.getAuthHeaders() }
+      );
       return { success: true, data: response.data };
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -175,9 +181,12 @@ export class Database {
     id: string,
   ): Promise<DatabaseResult<T>> {
     try {
-      const response = await axios.delete(`${this.baseUrl}/${id}`, {
-        params: { collection },
-      });
+      const response = await axios.delete(`${this.baseUrl}/${id}`,
+        {
+          params: { collection },
+          headers: this.getAuthHeaders(),
+        }
+      );
       return { success: true, data: response.data };
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -199,9 +208,12 @@ export class Database {
       }
 
       const idsParam = ids.map((id) => id.trim()).join(",");
-      const response = await axios.delete(`${this.baseUrl}/some`, {
-        params: { collection, ids: idsParam },
-      });
+      const response = await axios.delete(`${this.baseUrl}/some`,
+        {
+          params: { collection, ids: idsParam },
+          headers: this.getAuthHeaders(),
+        }
+      );
       return { success: true, data: response.data };
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -215,9 +227,12 @@ export class Database {
 
   async removeAll<T = any>(collection: string): Promise<DatabaseResult<T>> {
     try {
-      const response = await axios.delete(this.baseUrl, {
-        params: { collection },
-      });
+      const response = await axios.delete(this.baseUrl,
+        {
+          params: { collection },
+          headers: this.getAuthHeaders(),
+        }
+      );
       return { success: true, data: response.data };
     } catch (error) {
       if (axios.isAxiosError(error)) {
