@@ -177,4 +177,72 @@ export class PendulumClient {
       throw error;
     }
   }
+
+  async createCollection(newCollection: string) {
+    try {
+      const response = await axios.post(
+        `${this.appUrl}/collections`,
+        {
+          newCollection,
+        },
+        { headers: this.getAuthHeaders() },
+      );
+      return { success: true, data: response.data };
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          this.clearAuthToken();
+          this.clearAdminKey();
+        }
+        const message =
+          error.response?.data?.error?.message ||
+          "Failed to get collection permissions";
+        return { success: false, error: message };
+      }
+      throw error;
+    }
+  }
+
+  async getAllCollections() {
+    try {
+      const response = await axios.get(`${this.appUrl}/collections`, {
+        headers: this.getAuthHeaders(),
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          this.clearAuthToken();
+          this.clearAdminKey();
+        }
+        const message =
+          error.response?.data?.error?.message ||
+          "Failed to get collection permissions";
+        return { success: false, error: message };
+      }
+      throw error;
+    }
+  }
+
+  async deleteCollection(collection: string) {
+    try {
+      const response = await axios.delete(
+        `${this.appUrl}/collections?collection=${collection}`,
+        { headers: this.getAuthHeaders() },
+      );
+      return { success: true, data: response.data };
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          this.clearAuthToken();
+          this.clearAdminKey();
+        }
+        const message =
+          error.response?.data?.error?.message ||
+          "Failed to get collection permissions";
+        return { success: false, error: message };
+      }
+      throw error;
+    }
+  }
 }
