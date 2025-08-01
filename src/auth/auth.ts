@@ -29,10 +29,10 @@ export class Auth {
     }
   }
 
-  async login(username: string, password: string): Promise<LoginResult> {
+  async login(identifier: string, password: string): Promise<LoginResult> {
     try {
       const response = await axios.post(`${this.baseUrl}/login`, {
-        username,
+        identifier,
         password,
       });
       return { success: true, userId: response.data.userId };
