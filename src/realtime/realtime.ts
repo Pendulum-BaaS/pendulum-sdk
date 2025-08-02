@@ -1,4 +1,5 @@
 import { RealtimeFunction } from "../types";
+import { PendingOperationsManager } from "src/pendingOperationsManager";
 
 export class Realtime {
   private eventsUrl: string;
@@ -7,20 +8,29 @@ export class Realtime {
   private reconnectAttempts: number = 0;
   private maxReconnectAttempts: number = 5;
   private reconnectDelay: number = 1000;
+  private pendingOpsManager: PendingOperationsManager;
 
-  constructor(eventsUrl: string) {
+  constructor(eventsUrl: string, pendingOpsManager: PendingOperationsManager) {
     this.eventsUrl = `${eventsUrl}/events`;
     this.subscriptions = new Map();
+    this.pendingOpsManager = pendingOpsManager;
     this.initializeEventSource();
   }
 
   private initializeEventSource() {
     if (this.eventSource) this.eventSource.close();
     this.eventSource = new EventSource(this.eventsUrl);
+
     this.eventSource.onmessage = (event) => {
       // event listener
       try {
         const data = JSON.parse(event.data);
+
+        // check if event should be ignored (came from this client)
+        if (this.pendingOpsManager.shouldIgnoreEvent(data)) {
+          return;
+        }
+
         const callbacks = this.subscriptions.get(data.collection);
         if (callbacks) callbacks.forEach((cb) => cb(data));
       } catch (error) {
