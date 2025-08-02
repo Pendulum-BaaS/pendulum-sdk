@@ -23,7 +23,7 @@ export class PendulumClient {
 
     this.db = new Database(this.appUrl, () => this.getAuthHeaders());
     this.auth = new Auth(this.appUrl, () => this.getAuthHeaders());
-    if (enableRealtime) {
+    if (enableRealtime === undefined || enableRealtime) {
       this.realtime = new Realtime(this.eventsUrl);
     }
   }
