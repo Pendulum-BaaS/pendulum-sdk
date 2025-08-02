@@ -11,9 +11,9 @@ export class PendulumClient {
   private adminKey: string | null = null;
   public db: Database;
   public auth: Auth;
-  public realtime: Realtime;
+  public realtime?: Realtime;
 
-  constructor() {
+  constructor(enableRealtime?: boolean) {
     this.appUrl = "/pendulum";
     this.eventsUrl = "/pendulum-events";
     this.permissionsUrl = `${this.appUrl}/permissions`;
@@ -23,12 +23,14 @@ export class PendulumClient {
 
     this.db = new Database(this.appUrl, () => this.getAuthHeaders());
     this.auth = new Auth(this.appUrl, () => this.getAuthHeaders());
-    this.realtime = new Realtime(this.eventsUrl);
+    if (enableRealtime) {
+      this.realtime = new Realtime(this.eventsUrl);
+    }
   }
 
   setAuthToken(token: string): void {
     this.authToken = token;
-    localStorage.setItem('pendulum_auth_token', token);
+    localStorage.setItem("pendulum_auth_token", token);
   }
 
   getAuthToken(): string | null {
@@ -37,12 +39,12 @@ export class PendulumClient {
 
   clearAuthToken(): void {
     this.authToken = null;
-    localStorage.removeItem('pendulum_auth_token');
+    localStorage.removeItem("pendulum_auth_token");
   }
 
   setAdminKey(key: string): void {
     this.adminKey = key;
-    localStorage.setItem('pendulum_admin_key', key);
+    localStorage.setItem("pendulum_admin_key", key);
   }
 
   getAdminKey(): string | null {
@@ -51,7 +53,7 @@ export class PendulumClient {
 
   clearAdminKey(): void {
     this.adminKey = null;
-    localStorage.removeItem('pendulum_admin_key');
+    localStorage.removeItem("pendulum_admin_key");
   }
 
   isAuthenticated(): boolean {
@@ -64,54 +66,54 @@ export class PendulumClient {
 
   private getStoredAuthToken(): string | null {
     try {
-      return localStorage.getItem('pendulum_auth_token');
+      return localStorage.getItem("pendulum_auth_token");
     } catch (error) {
-      console.warn('Failed to retrieve auth token from localStorage:', error);
+      console.warn("Failed to retrieve auth token from localStorage:", error);
       return null;
     }
   }
 
   private getStoredAdminKey(): string | null {
     try {
-      return localStorage.getItem('pendulum_admin_key');
+      return localStorage.getItem("pendulum_admin_key");
     } catch (error) {
-      console.warn('Failed to retrieve admin key from localStorage:', error);
+      console.warn("Failed to retrieve admin key from localStorage:", error);
       return null;
     }
   }
 
   getAuthHeaders(): Record<string, string> {
     if (this.adminKey) {
-      return { 'Authorization': `Bearer ${this.adminKey}` };
+      return { Authorization: `Bearer ${this.adminKey}` };
     }
 
     if (this.authToken) {
-      return { 'Authorization': `Bearer ${this.authToken}` };
+      return { Authorization: `Bearer ${this.authToken}` };
     }
 
     return {};
   }
 
   async validateAdminKey(
-    key: string
+    key: string,
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const response = await axios.post(
-        `${this.appUrl}/auth/admin/validate`,
-        { adminKey: key }
-      );
+      const response = await axios.post(`${this.appUrl}/auth/admin/validate`, {
+        adminKey: key,
+      });
 
-      if (response.data?.success && response.data?.role === 'admin') {
+      if (response.data?.success && response.data?.role === "admin") {
         return { success: true };
       } else {
         return {
           success: false,
-          error: 'Invalid admin key',
+          error: "Invalid admin key",
         };
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.error?.message || 'Invalid admin key';
+        const errorMessage =
+          error.response?.data?.error?.message || "Invalid admin key";
         return {
           success: false,
           error: errorMessage,
@@ -119,8 +121,8 @@ export class PendulumClient {
       } else {
         return {
           success: false,
-          error: 'Failed to validate admin key',
-        }
+          error: "Failed to validate admin key",
+        };
       }
     }
   }
@@ -129,7 +131,7 @@ export class PendulumClient {
     try {
       const response = await axios.get(
         `${this.permissionsUrl}/${collectionName}/permissions`,
-        { headers: this.getAuthHeaders() }
+        { headers: this.getAuthHeaders() },
       );
       return { success: true, data: response.data };
     } catch (error) {
@@ -160,7 +162,7 @@ export class PendulumClient {
       const response = await axios.put(
         `${this.permissionsUrl}/${collectionName}/permissions`,
         { newPermissions: permissions },
-        { headers: this.getAuthHeaders() }
+        { headers: this.getAuthHeaders() },
       );
       return { success: true, data: response.data };
     } catch (error) {
