@@ -2,6 +2,7 @@ import axios from "axios";
 import { Database } from "./db";
 import { Auth } from "./auth";
 import { Realtime } from "./realtime";
+import { PendingOperationsManager } from "./pendingOperationsManager";
 
 export class PendulumClient {
   private appUrl: string;
@@ -9,11 +10,13 @@ export class PendulumClient {
   private permissionsUrl: string;
   private authToken: string | null = null;
   private adminKey: string | null = null;
+  private pendingOpsManager: PendingOperationsManager;
+
   public db: Database;
   public auth: Auth;
-  public realtime?: Realtime;
+  public realtime: Realtime;
 
-  constructor(enableRealtime?: boolean) {
+  constructor() {
     this.appUrl = "/pendulum";
     this.eventsUrl = "/pendulum-events";
     this.permissionsUrl = `${this.appUrl}/permissions`;
@@ -21,11 +24,10 @@ export class PendulumClient {
     this.authToken = this.getStoredAuthToken();
     this.adminKey = this.getStoredAdminKey();
 
-    this.db = new Database(this.appUrl, () => this.getAuthHeaders());
+    this.pendingOpsManager = new PendingOperationsManager();
+    this.db = new Database(this.appUrl, () => this.getAuthHeaders(), this.pendingOpsManager);
     this.auth = new Auth(this.appUrl, () => this.getAuthHeaders());
-    if (enableRealtime === undefined || enableRealtime) {
-      this.realtime = new Realtime(this.eventsUrl);
-    }
+    this.realtime = new Realtime(this.eventsUrl, this.pendingOpsManager);
   }
 
   setAuthToken(token: string): void {
@@ -246,5 +248,15 @@ export class PendulumClient {
       }
       throw error;
     }
+  }
+
+  destroy(): void {
+    this.realtime.disconnect();
+    this.pendingOpsManager.cleanup();
+    console.log("PendulumClient destroyed");
+  }
+
+  getPendingOperationsCount(): number { // for debugging
+    return this.pendingOpsManager.getPendingCount();
   }
 }

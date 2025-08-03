@@ -1,16 +1,24 @@
 import axios from "axios";
 import { DatabaseResult } from "src/types";
+import { PendingOperationsManager } from "src/pendingOperationsManager";
 
 export class Database {
   private baseUrl: string;
   private getAuthHeaders: () => Record<string, string>;
+  private pendingOpsManager: PendingOperationsManager;
 
 
-  constructor(appUrl: string, getAuthHeaders: () => Record<string, string> = () => ({})) {
+  constructor(
+    appUrl: string,
+    getAuthHeaders: () => Record<string, string> = () => ({}),
+    pendingOpsManager: PendingOperationsManager
+  ) {
     this.baseUrl = `${appUrl}/api`;
-    this.getAuthHeaders = getAuthHeaders
+    this.getAuthHeaders = getAuthHeaders;
+    this.pendingOpsManager = pendingOpsManager;
   }
 
+// READ OPERATIONS
   async getOne<T = any>(
     collection: string,
     id: string,
@@ -72,14 +80,18 @@ export class Database {
     }
   }
 
+// CREATE OPERATIONS
   async insert<T = any>(
     collection: string,
     newItems: object[],
   ): Promise<DatabaseResult<T>> {
+    const operationId = this.pendingOpsManager.generateOperationId();
+    this.pendingOpsManager.addPendingOperation(operationId, collection, "insert");
+
     try {
       const response = await axios.post(
         this.baseUrl,
-        { collection, newItems },
+        { collection, newItems, operationId },
         { headers: this.getAuthHeaders() }
       );
       return { success: true, data: response.data };
@@ -93,14 +105,18 @@ export class Database {
     }
   }
 
+// UPDATE OPERATIONS
   async updateOne<T = any>(
     collection: string,
     id: string,
     updateOperation: Record<string, any>,
   ): Promise<DatabaseResult<T>> {
+    const operationId = this.pendingOpsManager.generateOperationId();
+    this.pendingOpsManager.addPendingOperation(operationId, collection, "update");
+
     try {
       const response = await axios.patch(`${this.baseUrl}/${id}`,
-        { collection, updateOperation },
+        { collection, updateOperation, operationId },
         { headers: this.getAuthHeaders() }
       );
       return { success: true, data: response.data };
@@ -119,9 +135,12 @@ export class Database {
     filter: Record<string, any>,
     updateOperation: Record<string, any>,
   ): Promise<DatabaseResult<T>> {
+    const operationId = this.pendingOpsManager.generateOperationId();
+    this.pendingOpsManager.addPendingOperation(operationId, collection, "update");
+
     try {
       const response = await axios.patch(`${this.baseUrl}/some`,
-        { collection, filter, updateOperation,},
+        { collection, filter, updateOperation, operationId },
         { headers: this.getAuthHeaders() }
       );
       return { success: true, data: response.data };
@@ -139,9 +158,12 @@ export class Database {
     collection: string,
     updateOperation: Record<string, any>,
   ): Promise<DatabaseResult<T>> {
+    const operationId = this.pendingOpsManager.generateOperationId();
+    this.pendingOpsManager.addPendingOperation(operationId, collection, "update");
+
     try {
       const response = await axios.patch(this.baseUrl,
-        { collection, updateOperation, },
+        { collection, updateOperation, operationId },
         { headers: this.getAuthHeaders() }
       );
       return { success: true, data: response.data };
@@ -160,9 +182,12 @@ export class Database {
     id: string,
     newItem: object,
   ): Promise<DatabaseResult<T>> {
+    const operationId = this.pendingOpsManager.generateOperationId();
+    this.pendingOpsManager.addPendingOperation(operationId, collection, "update");
+
     try {
       const response = await axios.put(`${this.baseUrl}/${id}`,
-        { collection, newItem },
+        { collection, newItem, operationId },
         { headers: this.getAuthHeaders() }
       );
       return { success: true, data: response.data };
@@ -176,14 +201,18 @@ export class Database {
     }
   }
 
+// DELETE OPERATIONS
   async removeOne<T = any>(
     collection: string,
     id: string,
   ): Promise<DatabaseResult<T>> {
+    const operationId = this.pendingOpsManager.generateOperationId();
+    this.pendingOpsManager.addPendingOperation(operationId, collection, "delete");
+
     try {
       const response = await axios.delete(`${this.baseUrl}/${id}`,
         {
-          params: { collection },
+          params: { collection, operationId },
           headers: this.getAuthHeaders(),
         }
       );
@@ -202,6 +231,9 @@ export class Database {
     collection: string,
     ids: string[],
   ): Promise<DatabaseResult<T>> {
+    const operationId = this.pendingOpsManager.generateOperationId();
+    this.pendingOpsManager.addPendingOperation(operationId, collection, "delete");
+
     try {
       if (ids.length === 0) {
         throw new Error("one or more ids required for removeSome");
@@ -210,7 +242,7 @@ export class Database {
       const idsParam = ids.map((id) => id.trim()).join(",");
       const response = await axios.delete(`${this.baseUrl}/some`,
         {
-          params: { collection, ids: idsParam },
+          params: { collection, ids: idsParam, operationId },
           headers: this.getAuthHeaders(),
         }
       );
@@ -226,10 +258,13 @@ export class Database {
   }
 
   async removeAll<T = any>(collection: string): Promise<DatabaseResult<T>> {
+    const operationId = this.pendingOpsManager.generateOperationId();
+    this.pendingOpsManager.addPendingOperation(operationId, collection, "delete");
+
     try {
       const response = await axios.delete(this.baseUrl,
         {
-          params: { collection },
+          params: { collection, operationId },
           headers: this.getAuthHeaders(),
         }
       );
