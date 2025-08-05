@@ -4,6 +4,11 @@ import { Auth } from "./auth";
 import { Realtime } from "./realtime";
 import { PendingOperationsManager } from "./pendingOperationsManager";
 
+interface PendulumConfig {
+  apiUrl?: string;
+  eventsUrl?: string;
+}
+
 export class PendulumClient {
   private appUrl: string;
   private eventsUrl: string;
@@ -16,9 +21,9 @@ export class PendulumClient {
   public auth: Auth;
   public realtime: Realtime;
 
-  constructor() {
-    this.appUrl = "/pendulum";
-    this.eventsUrl = "/pendulum-events";
+  constructor(config?: PendulumConfig) {
+    this.appUrl = config?.apiUrl || "http://localhost:3000/pendulum";
+    this.eventsUrl = config?.eventsUrl || "http://localhost:8080/pendulum-events";
     this.permissionsUrl = `${this.appUrl}/permissions`;
 
     this.authToken = this.getStoredAuthToken();
