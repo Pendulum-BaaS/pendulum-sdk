@@ -21,6 +21,10 @@ export class PendulumClient {
     this.eventsUrl = "/pendulum-events";
     this.permissionsUrl = `${this.appUrl}/permissions`;
 
+    if (typeof window !== "undefined" && this.isAdminDashboard()) {
+      this.eventsUrl = "http://localhost:8080/pendulum-events";
+    }
+
     this.authToken = this.getStoredAuthToken();
     this.adminKey = this.getStoredAdminKey();
 
@@ -64,6 +68,10 @@ export class PendulumClient {
 
   isAdmin(): boolean {
     return !!this.adminKey;
+  }
+
+  private isAdminDashboard(): boolean {
+    return window.location.pathname.startsWith("/admin");
   }
 
   private getStoredAuthToken(): string | null {
