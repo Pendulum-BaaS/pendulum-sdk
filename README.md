@@ -14,13 +14,13 @@ A TypeScript SDK for connecting frontend applications to the Pendulum Backend-as
 ## Installation
 
 ```bash
-npm install @pendulum/sdk
+npm install @pendulum-baas/sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { PendulumClient } from "@pendulum/sdk";
+import { PendulumClient } from "@pendulum-baas/sdk";
 
 // Initialize the client
 const client = new PendulumClient({
@@ -52,8 +52,8 @@ The SDK accepts the following configuration options:
 
 ```typescript
 interface PendulumConfig {
-  apiUrl?: string;      // Default: "http://localhost:3000"
-  eventsUrl?: string;   // Default: "http://localhost:8080/events"
+  apiUrl?: string;      // Default: "/pendulum"
+  eventsUrl?: string;   // Default: "/pendulum-events"
 }
 ```
 
@@ -119,7 +119,9 @@ const bulkUpdate = await client.db.updateSome("users",
 );
 
 // Update all records
-const updateAll = await client.db.updateAll("users", { lastSeen: new Date() });
+const updateAll = await client.db.updateAll("users", {
+  lastSeen: new Date()
+});
 
 // Replace a record completely
 const replaced = await client.db.replace("users", "userId", {
@@ -135,7 +137,7 @@ const replaced = await client.db.replace("users", "userId", {
 const deleted = await client.db.removeOne("users", "userId");
 
 // Delete multiple records
-const bulkDelete = await client.db.removeSome("users", { status: "archived" });
+const bulkDelete = await client.db.removeSome("users", ["id1", "id2"]);
 
 // Delete all records
 const deleteAll = await client.db.removeAll("users");
@@ -235,49 +237,49 @@ const client = new PendulumClient({
 });
 
 function UsersList() {
-	const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]);
 
-	// callback function for realtime subscription
-	const addUsers = (event: DatabaseEvent) => {
-			const { action, eventData } = event;
-			if (action === "insert") {
-				const newUsers = eventData.affected;
-				setUsers(prev => [...prev, ...newUsers].sort());
-			}
-	};
+  // callback function for realtime subscription
+  const addUsers = (event: DatabaseEvent) => {
+    const { action, eventData } = event;
+    if (action === "insert") {
+      const newUsers = eventData.affected;
+      setUsers(prev => [...prev, ...newUsers].sort());
+    }
+  };
 
-	React.useEffect(() => {
-			// initial fetch on mount
-			const fetchUsers = async () => {
-				try {
-					const response = await client.db.getAll("users");
-					if (response.success) {
-						const fetchedUsers = response.data;
-						setUsers(fetchedUsers);
-					} else {
-						throw new Error(response.error);
-					}
-				} catch (error) {
-					/* error handling */
-				}
-			};
+  React.useEffect(() => {
+    // initial fetch on mount
+    const fetchUsers = async () => {
+      try {
+        const response = await client.db.getAll("users");
+        if (response.success) {
+          const fetchedUsers = response.data;
+          setUsers(fetchedUsers);
+        } else {
+          throw new Error(response.error);
+        }
+      } catch (error) {
+        /* error handling */
+      }
+    };
 
-			fetchUsers();
+    fetchUsers();
 
-			// Subscribe to real-time event updates
-			client.realtime.subscribe("users", addUsers);
+    // Subscribe to real-time event updates
+    client.realtime.subscribe("users", addUsers);
 
-			// Cleanup subscription on unmount
-			return () => client.realtime.unsubscribe("users", addUsers);
-	}, []);
+    // Cleanup subscription on unmount
+    return () => client.realtime.unsubscribe("users", addUsers);
+  }, []);
 
-	return (
-		<div>
-			{users.map(user => (
-				<div key={user.id}>{user.name}</div>
-			))}
-		</div>
-	);
+  return (
+    <div>
+      {users.map(user => (
+        <div key={user.id}>{user.name}</div>
+      ))}
+    </div>
+  );
 }
 ```
 
@@ -301,6 +303,7 @@ if (user.success) {
 
 // Type-safe real-time subscriptions
 client.realtime.subscribe("users", (event: DatabaseEvent) => {
+  console.log(`Action: ${event.action}, Collection: ${event.collection}`);
   // TypeScript compiler knows that event has `collection`, `action`, and `eventData` properties
 });
 ```
@@ -333,7 +336,7 @@ The SDK automatically handles connection management for real-time updates:
 ### User Management with Real-time Updates
 
 ```typescript
-import { PendulumClient, type DatabaseEvent, type User } from "@pendulum/sdk";
+import { PendulumClient, type DatabaseEvent, type User } from "@pendulum-baas/sdk";
 
 const client = new PendulumClient({
   apiUrl: "https://api.myapp.com",
@@ -342,7 +345,7 @@ const client = new PendulumClient({
 
 // Subscribe to user changes
 const handleUpdateUsers = (event: DatabaseEvent) => {
-	if (event.action === "insert") {
+  if (event.action === "insert") {
     console.log("New user added:", event.eventData.affected);
   } else if (event.action === "update") {
     console.log("User updated:", event.eventData.affected);
@@ -364,7 +367,7 @@ if (newUser.success) {
 }
 
 // Disconnect from real-time updates and close connection to event server
-client.realtime.disconnect()
+client.realtime.disconnect();
 ```
 
 ### Authentication Flow
@@ -384,6 +387,10 @@ async function handleLogin(username: string, password: string) {
   }
 }
 ```
+
+## Dependencies Downloaded with `npm install`
+- Axios - HTTP client for API requests
+- TypeScript - Type definitions and runtime support
 
 ## Contributing
 
