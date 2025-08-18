@@ -9,7 +9,10 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -32,7 +35,15 @@
     "axios": "^1.10.0"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.2.1",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "mongodb": "^6.18.0",
+    "mongodb-memory-server": "^10.2.0",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.1",
     "typescript": "^5.8.3"
   }
 }
